@@ -1,0 +1,77 @@
+diff --git a/arch/arm64/boot/dts/ti/k3-am625-phyboard-lyra-rdk.dts b/arch/arm64/boot/dts/ti/k3-am625-phyboard-lyra-rdk.dts
+index 6c24e4d39ee8..231e89514e09 100644
+--- a/arch/arm64/boot/dts/ti/k3-am625-phyboard-lyra-rdk.dts
++++ b/arch/arm64/boot/dts/ti/k3-am625-phyboard-lyra-rdk.dts
+@@ -137,9 +137,37 @@ vcc_3v3_sw: regulator-vcc-3v3-sw {
+ 		regulator-always-on;
+ 		regulator-boot-on;
+ 	};
++
++        hx711: weight {
++               compatible = "avia,hx711";
++               pinctrl-names = "default";
++               pinctrl-0 = <&hx711_pins_default>;
++               sck-gpios = <&main_gpio1 13 GPIO_ACTIVE_HIGH>;
++               dout-gpios = <&main_gpio0 36 GPIO_ACTIVE_HIGH>;
++               avdd-supply = <&vcc_5v0_som>;
++               clock-frequency = <2500000>;
++        };
+ };
+ 
+ &main_pmx0 {
++
++        hx711_pins_default: hx711-pins-default {
++                pinctrl-single,pins = <
++                        AM62X_IOPAD(0x094, PIN_INPUT, 7) /* (N20) GPMC0_BE1n.GPIO0_36  */
++			AM62X_IOPAD(0x1ac, PIN_OUTPUT, 7) /* (E19) MCASP0_AFSR.GPIO1_13 */
++                >;
++        };
++
++        main_spi0_pins_default: main-spi0-pins-default {
++                pinctrl-single,pins = <
++                        AM62X_IOPAD(0x01bc, PIN_INPUT, 0)       /* (A14) SPI0_CLK */
++                        AM62X_IOPAD(0x01b4, PIN_OUTPUT, 0)      /* (A13) SPI0_CS0 */
++                        AM62X_IOPAD(0x01c0, PIN_OUTPUT, 0)      /* (B13) SPI0_D0 (MOSI)*/
++                        AM62X_IOPAD(0x01c4, PIN_INPUT, 0)       /* (B14) SPI0_D1 (MISO)*/
++                >;
++        };
++
++
+ 	audio_ext_refclk1_pins_default: audio-ext-refclk1-default-pins {
+ 		pinctrl-single,pins = <
+ 			AM62X_IOPAD(0x0a0, PIN_OUTPUT, 1) /* (K25) GPMC0_WPn.AUDIO_EXT_REFCLK1 */
+@@ -252,7 +280,6 @@ main_uart1_pins_default: main-uart1-default-pins {
+ 		pinctrl-single,pins = <
+ 			AM62X_IOPAD(0x194, PIN_INPUT, 2) /* (B19) MCASP0_AXR3.UART1_CTSn */
+ 			AM62X_IOPAD(0x198, PIN_OUTPUT, 2) /* (A19) MCASP0_AXR2.UART1_RTSn */
+-			AM62X_IOPAD(0x1ac, PIN_INPUT, 2) /* (E19) MCASP0_AFSR.UART1_RXD */
+ 			AM62X_IOPAD(0x1b0, PIN_OUTPUT, 2) /* (A20) MCASP0_ACLKR.UART1_TXD */
+ 		>;
+ 	};
+@@ -270,6 +297,26 @@ AM62X_IOPAD(0x084, PIN_OUTPUT, 7) /* (L23) GPMC0_ADVn_ALE.GPIO0_32 */
+ 	};
+ };
+ 
++&main_spi0 {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        status = "okay";
++        pinctrl-names = "default";
++        pinctrl-0 = <&main_spi0_pins_default>;
++        ti,pindir-d0-out-d1-in = <1>;
++	SPI_CPOL;
++        SPI_CPHA;
++
++        lcd@0 {
++                spi-max-frequency = <100000>;
++                reg = <0>;
++                compatible = "rohm,dh2228fv";
++        };
++
++};
++
++
+ &cpsw3g {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&main_rgmii1_pins_default>, <&main_rgmii2_pins_default>;

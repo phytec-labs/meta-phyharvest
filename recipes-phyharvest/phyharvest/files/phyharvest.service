@@ -1,0 +1,14 @@
+[Unit]
+Description=Display Weight on SPI Screen and Play Sound
+After=basic.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/bin/displaylbs.py
+RemainAfterExit=true
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
